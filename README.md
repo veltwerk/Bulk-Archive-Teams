@@ -32,5 +32,5 @@ The script will ask if you want to remove all members from the selected teams; d
 
 _In large tenants with 500+ teams, it takes a while to retrieve all the teams._
 
-You are presented with a gridView where you can filter (if running on powershell 5.1.) to find the teams you need to archive.
+You are presented with a gridView where you can filter (if running on powershell 5.1) to find the teams you need to archive.
 Click on `OK` to start the process.
