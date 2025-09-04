@@ -15,22 +15,24 @@ It lets you select the teams to be archived (and removed from the Exchange Addre
 
 ## prerequisites
 
-- An admin account for your tenant with at least the following roles : Exchange Admin + Groups Admin + Teams Admin + Application Admin **or** Exchange Admin + Global Admin. Note that the Exchange Admin role is needed even if you are global admin.
+- An admin account for your tenant with at least the following roles : Exchange Admin + Groups Admin + Teams Admin + Application Admin **or** Exchange Admin + Global Admin.
 - The admin account must have a valid Teams license. A1 is sufficient.
 - Powershell. Version **5.1** works best because in higher versions, filtering in the gridview when selecting teams, can crash the process.
-- ExchangeOnlineManagement, Microsoft.Graph.Groups, Microsoft.Graph.Users, Microsoft.Graph.Teams powershell modules installed.
+- ExchangeOnlineManagement, Microsoft.Graph.Groups, Microsoft.Graph.Users, Microsoft.Graph.Teams powershell modules installed. Unquote the _prerequisites_ section to run module installers with the script.
 
 ## how to use it
 
-Run the script without any parameters. It will show a popup (powershell 5.1) or a browser tab to log onto graph and then again, to log onto exchange online.
+Run the script without any parameters. It will show a popup (powershell 5.1) or a browser tab to log onto graph and then, once more, to log onto exchange online.
 
-It will ask you to enter a search term that will be used to filter on the _mailNickname_. When Veldwerk creates classTeams for a schoolyear, we allways put the schoolyear in the mailNickname of the team/group. For example: search on "2526" to retrieve teams like: `VBS-2526-H3A-NE`
+It will ask you to enter a search term that will be used to filter on the _mailNickname_. When Veldwerk creates classTeams for a schoolyear, we allways put the schoolyear in the mailNickname of the team/group. For example: search on "2526" to retrieve teams like: `VBS-2526-H3A-NE@domain.edu`
 
 It will ask you to show only class Teams; default = **yes**. It will filter to only show teams with `Visibility = HiddenMembership'. In most tenants; only the educational teams, i.e. teams with a class notebook and other edu apps, have visibility set to hide members. 
 
 The script will ask if you want to remove all members from the selected teams; default = **no**. 
 
-_In large tenants with 500+ teams, it takes a while to retrieve all the teams._
+_In large tenants with 1000+ teams, it takes a while to retrieve all the teams._
 
 You are presented with a gridView where you can filter (if running on powershell 5.1) to find the teams you need to archive.
 Click on `OK` to start the process.
+
+After the archiving and member removal processes are finished, a .CSV file will be writen to your home folder and opened with whatever application is your default for such files.
