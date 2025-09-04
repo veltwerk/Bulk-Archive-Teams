@@ -5,7 +5,7 @@
 
 ## disclaimer
 
-You need several admin roles in your tenant to use this script. If you have those, then you should know what your doing when running a bulk action powershell script against your Azure tenant. Stil... use at your own risk.
+You need several admin roles in your tenant to use this script. If you have those, then you should know what your doing when running a bulk action powershell script against your Azure tenant. Still... use at your own risk.
 
 ## what the script is for
 
@@ -24,15 +24,15 @@ It lets you select the teams to be archived (and removed from the Exchange Addre
 
 Run the script without any parameters. It will show a popup (powershell 5.1) or a browser tab to log onto graph and then, once more, to log onto exchange online.
 
-It will ask you to enter a search term that will be used to filter on the _mailNickname_. When Veldwerk creates classTeams for a schoolyear, we allways put the schoolyear in the mailNickname of the team/group. For example: search on "2526" to retrieve teams like: `VBS-2526-H3A-NE@domain.edu`
+- It will ask you to enter a search term that will be used to filter on the _mailNickname_. When Veldwerk creates classTeams for a schoolyear, we allways put the schoolyear in the mailNickname of the team/group. For example: search on "2526" to retrieve teams like: `VBS-2526-H3A-NE@domain.edu`
 
-It will ask you to show only class Teams; default = **yes**. It will filter to only show teams with `Visibility = HiddenMembership'. In most tenants; only the educational teams, i.e. teams with a class notebook and other edu apps, have visibility set to hide members. 
+- It will ask you to show only class Teams; default = **yes**. This filters the groups to only show teams with `Visibility = HiddenMembership'. In most tenants; only the educational teams, i.e. teams with a class notebook and other edu apps, have visibility set to hide the members.
 
-The script will ask if you want to remove all members from the selected teams; default = **no**. 
+- The script will ask if you want to remove all members from the selected teams; default = **no**.
 
 _In large tenants with 1000+ teams, it takes a while to retrieve all the teams._
 
-You are presented with a gridView where you can filter (if running on powershell 5.1) to find the teams you need to archive.
+- You are presented with a gridView where you can filter (if running on powershell 5.1) to find the teams you need to archive.
 Click on `OK` to start the process.
 
 After the archiving and member removal processes are finished, a .CSV file will be writen to your home folder and opened with whatever application is your default for such files.
