@@ -18,4 +18,10 @@ It lets you select the teams to be archived (and removed from the Exchange Addre
 - An admin account for your tenant with at least the following roles : Exchange Admin + Groups Admin + Teams Admin + Application Admin **or** Exchange Admin + Global Admin. Note that the Exchange Admin role is needed even if you are global admin.
 - The admin account must have a valid Teams license. A1 is sufficient.
 - Powershell. Version **5.1** works best because in higher versions, filtering in the gridview when selecting teams, can crash the process.
-- ExchangeOnlineManagement, Microsoft.Graph.Groups, Microsoft.Graph.Users, Microsoft.Graph.Teams modules installed.
+- ExchangeOnlineManagement, Microsoft.Graph.Groups, Microsoft.Graph.Users, Microsoft.Graph.Teams powershell modules installed.
+
+## how to use it
+
+Run the script without any parameters. It will show a popup (powershell 5.1) or a browser tab to log onto graph and then again, to log onto exchange online.
+
+It will ask you to enter a search term that will be used to filter on the _mailNickname_. When Veldwerk creates classTeams for a schoolyear, we allways put the schoolyear in the mailNickname of the team/group; `VBS-**2526**-H3A-NE`
