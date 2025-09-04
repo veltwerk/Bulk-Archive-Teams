@@ -36,3 +36,9 @@ _In large tenants with 1000+ teams, it takes a while to retrieve all the teams._
 Click on `OK` to start the process.
 
 After the archiving and member removal processes are finished, a .CSV file will be writen to your home folder and opened with whatever application is your default for such files.
+
+## notes
+
+- There is minimal error handling in this script.
+- The script doesn't check to see if a team is already archived. When an already archived team is processed you will see an error flashing by along with a warning from exchange that the call `Set-UnifiedGroup -Identity $selectedGroup.Id -HiddenFromAddressListsEnabled:$true` has altered no properties.
+- _**Be patient: archiving 1000 teams and removing all members can take 2 hours or more!**_
