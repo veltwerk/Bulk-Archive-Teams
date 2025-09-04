@@ -41,4 +41,4 @@ After the archiving and member removal processes are finished, a .CSV file will 
 
 - There is minimal error handling in this script.
 - The script doesn't check to see if a team is already archived. When an already archived team is processed you will see an error flashing by along with a warning from exchange that the call `Set-UnifiedGroup -Identity $selectedGroup.Id -HiddenFromAddressListsEnabled:$true` has altered no properties.
-- _Be patient: archiving 1000 teams and removing all members can take 2 hours or more!_
+- _**Be patient: archiving 1000 teams and removing all members can take 2 hours or more!**_
