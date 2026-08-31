@@ -11,7 +11,12 @@ You need several admin roles in your tenant to use this script. If you have thos
 
 In educational tenants lots and lots of class teams / educational teams have to be created each year and those teams have to be archived after the schoolyear is over. This script uses the Graph API and Exchange Online Management powershell modules to help with the archiving. 
 
-It lets you select the teams to be archived (and removed from the Exchange Address List) with the option to also remove all members from those teams.
+It lets you select the teams to be archived (and removed from the Exchange Address List) with the option to also remove members from those teams.
+
+Both steps are optional and can be used separately:
+
+- **Archiving is optional**: skip it to only clean up team membership without archiving the teams.
+- **Member removal can be limited to one domain**: for example remove only students (`student.domain.nl`) and keep the teachers in the team.
 
 ## prerequisites
 
@@ -28,7 +33,11 @@ Run the script without any parameters. It will show a popup (powershell 5.1) or 
 
 - It will ask you to show only class Teams; default = **yes**. This filters the groups to only show teams with `Visibility = HiddenMembership'. In most tenants; only the educational teams, i.e. teams with a class notebook and other edu apps, have visibility set to hide the members.
 
-- The script will ask if you want to remove all members from the selected teams; default = **no**.
+- The script will ask if the selected teams should be archived (and hidden from the address lists); default = **yes**. Answer **no** if you only want to remove (a subset of) members without archiving.
+
+- The script will ask if you want to remove members from the selected teams; default = **no**.
+
+- If you choose to remove members, you can optionally enter a domain name (e.g. `student.domain.nl`) to only remove members whose UserPrincipalName/mail ends with that domain, for example to remove only students and keep teachers in the team. Press [ENTER] to remove all members.
 
 _In large tenants with 1000+ teams, it takes a while to retrieve all the teams._
 
@@ -40,5 +49,7 @@ After the archiving and member removal processes are finished, a .CSV file will 
 ## notes
 
 - There is minimal error handling in this script.
+- Answering **no** to both the archive and the remove members question means the script does nothing except export the selected teams to CSV.
+- The domain filter matches on the UserPrincipalName of a member, so guest accounts (whose UPN contains `#EXT#`) will not match a filter on their original mail domain.
 - The script doesn't check to see if a team is already archived. When an already archived team is processed you will see an error flashing by along with a warning from exchange that the call `Set-UnifiedGroup -Identity $selectedGroup.Id -HiddenFromAddressListsEnabled:$true` has altered no properties.
 - _**Be patient: archiving 1000 teams and removing all members can take 2 hours or more!**_
