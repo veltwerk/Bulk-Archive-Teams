@@ -1,4 +1,8 @@
 <#
+# v1.5 :
+    Added option to skip archiving and only remove members
+    Added optional domain filter to only remove members matching a domain (e.g. students)
+
 # v1.4 : 
     Minor text changes
     Added option to filter on class teams only (Visibility = HiddenMembership)
@@ -73,19 +77,22 @@ Write-Host "You have the option to also remove all members after archiving." -Fo
     #>
     
     Add-Type -AssemblyName System.Windows.Forms
+    Import-Module ExchangeOnlineManagement
     Import-Module Microsoft.Graph.Groups
     Import-Module Microsoft.Graph.Users
     Import-Module Microsoft.Graph.Teams
-    Import-Module ExchangeOnlineManagement
 
     #Disconnect any existing sessions
     Disconnect-ExchangeOnline -Confirm:$false -ErrorAction SilentlyContinue > $null
     Disconnect-MgGraph -ErrorAction SilentlyContinue > $null
     
     # Connect to tenant
+    # EXO eerst: Microsoft.Graph laadt een oudere Microsoft.Identity.Client.dll die de WAM-broker van EXO breekt
     Write-Host "Connecting to tenant..." -ForegroundColor Yellow
+    $exoParams = @{ ShowBanner = $false; ErrorAction = 'Stop' }
+    if ((Get-Command Connect-ExchangeOnline).Parameters.ContainsKey('DisableWAM')) { $exoParams['DisableWAM'] = $true }
+    Connect-ExchangeOnline @exoParams
     Connect-MgGraph -Scopes "TeamSettings.ReadWrite.All, Group.ReadWrite.All, User.Read.All" -ErrorAction Stop
-    Connect-ExchangeOnline -ShowBanner:$false -ErrorAction Stop
     Write-Host "Connection to tenant established." -ForegroundColor Green
 
     Write-host "Checking if Exchange module is complete."
@@ -106,9 +113,19 @@ Write-Host "You have the option to also remove all members after archiving." -Fo
     $classTeamsOnlyInput = Read-Host "Show class / education teams only (Visibility = HiddenMembership)? (Y/n)"
     $classTeamsOnly = if ($classTeamsOnlyInput -match '^(n|no)$') { "no";$teamsType="" } else { "yes";$teamsType="class" }
 
+    # Ask in advance if the selected teams should be archived
+    $doArchiveInput = Read-Host "Should the selected teams be archived (and hidden from address lists)? (Y/n)"
+    $doArchive = if ($doArchiveInput -match '^(n|no)$') { "no" } else { "yes" }
+
     # Ask in advance if members should be removed
     $removeMembersInput = Read-Host "Should team members be removed after archiving? (y/N)"
     $removeMembers = if ($removeMembersInput -match '^(y|yes)$') { "yes" } else { "no" }
+
+    # Ask for an optional domain filter to only remove members with a matching UPN/mail domain (e.g. students)
+    $memberDomainFilter = ""
+    if ($removeMembers -eq "yes"){
+        $memberDomainFilter = Read-Host "Enter a domain name to only remove members with that domain (e.g. student.domain.nl). Press [ENTER] to remove all members"
+    }
 
     if ($queryGroups) { $preFilter="with filter '$queryGroups'"} else { $preFilter="without filter" }
     Write-host "Retrieving $teamsType Teams $preFilter..."
@@ -129,13 +146,22 @@ Write-Host "You have the option to also remove all members after archiving." -Fo
 
 # Archive selected groups
 foreach ($selectedGroup in $selectedGroups) {
-    Write-Progress -Activity "Archiving teams" -Status "Archiving $($selectedGroup.DisplayName)" -PercentComplete (($selectedGroups.IndexOf($selectedGroup) / $groupCount) * 100)
-    Set-UnifiedGroup -Identity $selectedGroup.Id -HiddenFromAddressListsEnabled:$true 
-    Invoke-MgArchiveTeam -TeamId $selectedGroup.Id -Confirm:$false 
+    if ($doArchive -eq "yes"){
+        Write-Progress -Activity "Archiving teams" -Status "Archiving $($selectedGroup.DisplayName)" -PercentComplete (($selectedGroups.IndexOf($selectedGroup) / $groupCount) * 100)
+        Set-UnifiedGroup -Identity $selectedGroup.Id -HiddenFromAddressListsEnabled:$true 
+        Invoke-MgArchiveTeam -TeamId $selectedGroup.Id -Confirm:$false 
+    }
     # Option to remove members
     if ($removeMembers -eq "yes"){
         Write-Progress -Activity "Archiving teams" -Status "Removing members from $($selectedGroup.DisplayName)" -PercentComplete (($selectedGroups.IndexOf($selectedGroup) / $groupCount) * 100)
-        $users = Get-MgGroupMember -All -GroupId $selectedGroup.Id | Select-Object -Property Id
+        $users = Get-MgGroupMember -All -GroupId $selectedGroup.Id | Select-Object -Property Id, AdditionalProperties
+        # Filter members by mail/UPN domain when a filter was provided (e.g. only remove students)
+        if ($memberDomainFilter) {
+            $users = $users | Where-Object {
+                $upn = $_.AdditionalProperties["userPrincipalName"]
+                $upn -and $upn -like "*@$memberDomainFilter"
+            }
+        }
         if ($users -and $users.Count -and $users.Count -gt 0) {
             $usercount = $users.count
         } else {
@@ -153,6 +179,11 @@ foreach ($selectedGroup in $selectedGroups) {
 }
 if ($removeMembers -eq "no"){
     Write-Host "No members removed." -ForegroundColor Red
+} elseif ($memberDomainFilter) {
+    Write-Host "Only members with domain '$memberDomainFilter' were removed." -ForegroundColor Yellow
+}
+if ($doArchive -eq "no"){
+    Write-Host "Teams were not archived." -ForegroundColor Red
 }
 Write-Progress -Activity "Archiving teams" -Status "Complete" -Completed
 
